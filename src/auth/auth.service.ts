@@ -13,13 +13,9 @@ export class AuthService {
 
   // Đăng ký
   async register(email: string, password: string) {
-    const hashedPassword = await bcrypt.hash(password, 10);
-
     try {
-      const user = await this.usersService.create({ email, password: hashedPassword });
-      return {
-        user,
-      };
+      const user = await this.usersService.create({ email, password });
+      return { user };
     } catch (error) {
       if (error.code === 'ER_DUP_ENTRY') {
         throw new ConflictException('Email already exists');
@@ -31,8 +27,9 @@ export class AuthService {
   // Đăng nhập
   async login(email: string, password: string) {
     const user = await this.usersService.findByEmail(email);
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+
+    if (!user.isActive) {
+      throw new UnauthorizedException('User is inactive');
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
