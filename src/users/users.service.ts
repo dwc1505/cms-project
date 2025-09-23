@@ -2,6 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
+import { CreateUserDto, UpdateUserDto } from 'src/common/dtos';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -9,13 +11,16 @@ export class UsersService {
     @InjectRepository(User) private readonly repo: Repository<User>,
   ) {}
 
-  async create(data: { email: string; password: string }) {
+  async create(data: CreateUserDto) {
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+
     const user = this.repo.create({
-      ...data,
-      role: 'user',
+      email: data.email,
+      password: hashedPassword,
+      role: data.role ?? 'user',
     });
     const creUser = await this.repo.save(user);
-    
+
     return {
       message: 'User created successfully',
       user: creUser,
@@ -38,34 +43,21 @@ export class UsersService {
     return user;
   }
 
-  async update(id: number, data: Partial<User>) {
+  async update(id: number, data: Partial<Pick<User, 'role' | 'isActive'>>) {
     const user = await this.repo.findOneBy({ id });
-    if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found`);
-    }
-    const { role, ...updateData } = data;
-    await this.repo.update(id, {
-      ...updateData,
-      role: 'user',
-    });
+    if (!user) throw new NotFoundException(`User with ID ${id} not found`);
 
-    const updatedUser = await this.findOne(id);
+    if (data.role !== undefined) user.role = data.role;
+    if (data.isActive !== undefined) user.isActive = data.isActive;
+
+    await this.repo.save(user);
+
     return {
       message: 'User updated successfully',
-      user: updatedUser,
+      user,
     };
   }
 
-  async remove(id: number) {
-    const deleUser = await this.repo.delete(id);
-    if (deleUser.affected === 0) {
-      throw new NotFoundException(`User with id ${id} not found`);
-    }
-    return {
-      message: 'User deleted successfully',
-      deleted: true,
-    };
-  }
   async findByEmail(email: string) {
   const user = await this.repo.findOne({ where: { email } });
   if (!user) {

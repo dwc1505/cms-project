@@ -1,13 +1,13 @@
-import { Controller, Get, Post as PostRoute, Put, Delete, Param, Body } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { User } from './user.entity';
+import { CreateUserDto, UpdateUserDto } from 'src/common/dtos';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly service: UsersService) {}
 
-  @PostRoute()
-  create(@Body() body: { email: string; password: string; role?: string }) {
+  @Post()
+  create(@Body() body: CreateUserDto) {
     return this.service.create(body);
   }
 
@@ -22,12 +22,7 @@ export class UsersController {
   }
 
   @Put(':id')
-  update(@Param('id') id: number, @Body() body: Partial<User>) {
+  update(@Param('id') id: number, @Body() body: UpdateUserDto) {
     return this.service.update(id, body);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: number) {
-    return this.service.remove(id);
   }
 }

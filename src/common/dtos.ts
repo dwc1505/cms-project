@@ -10,18 +10,16 @@ export class CreateUserDto {
   password: string;
 
   @IsOptional()
+  isActive?: boolean;
+
+  @IsOptional()
   @IsIn(['user', 'admin'])
   role?: string;
 }
 // =================================//
 export class UpdateUserDto {
   @IsOptional()
-  @IsEmail()
-  email?: string;
-
-  @IsOptional()
-  @MinLength(6)
-  password: string;
+  isActive?: boolean;
 
   @IsOptional()
   @IsIn(['user', 'admin'])

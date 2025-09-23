@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, Post } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -8,6 +8,8 @@ import { CategoriesModule } from './categories/categories.module';
 import { AuthModule } from './auth/auth.module';
 import { AdminModule } from './admin/admin.module';
 import { JwtModule } from '@nestjs/jwt';
+import { Category } from './categories/categories.entity';
+import { User } from './users/user.entity';
 
 @Module({
   imports: [
@@ -18,6 +20,7 @@ import { JwtModule } from '@nestjs/jwt';
       username: 'root',
       password: '',
       database: 'cms_project',
+      entities: [User, Post, Category],
       autoLoadEntities: true,
       synchronize: true,
     }),
