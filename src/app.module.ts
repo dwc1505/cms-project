@@ -7,6 +7,7 @@ import { PostModule } from './posts/posts.module';
 import { CategoriesModule } from './categories/categories.module';
 import { AuthModule } from './auth/auth.module';
 import { AdminModule } from './admin/admin.module';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -25,6 +26,10 @@ import { AdminModule } from './admin/admin.module';
     CategoriesModule,
     AuthModule,
     AdminModule,
+    JwtModule.register({
+      secret: 'your_jwt_secret',
+      signOptions: { expiresIn: '1h' },
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],

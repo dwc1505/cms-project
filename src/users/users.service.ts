@@ -43,16 +43,13 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
-
     const { role, ...updateData } = data;
-
     await this.repo.update(id, {
       ...updateData,
       role: 'user',
     });
 
     const updatedUser = await this.findOne(id);
-
     return {
       message: 'User updated successfully',
       user: updatedUser,
@@ -69,4 +66,11 @@ export class UsersService {
       deleted: true,
     };
   }
+  async findByEmail(email: string) {
+  const user = await this.repo.findOne({ where: { email } });
+  if (!user) {
+    throw new NotFoundException(`User with email ${email} not found`);
+  }
+  return user;
+}
 }
