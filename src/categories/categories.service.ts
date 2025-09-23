@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Category } from './categories.entity';
+import { CreateCategoryDto, UpdateCategoryDto } from 'src/common/dtos';
 
 @Injectable()
 export class CategoriesService {
@@ -10,39 +11,48 @@ export class CategoriesService {
     private readonly repo: Repository<Category>,
   ) {}
 
-  // Tạo category
-  async create(data: Partial<Category>): Promise<Category> {
+  async create(data: CreateCategoryDto) {
     const category = this.repo.create(data);
-    return this.repo.save(category);
+    const creCategory = await this.repo.save(category);
+    return {
+      message: 'Category created successfully',
+      category: creCategory,
+    };
   }
 
-  // Lấy tất cả category
-  findAll(): Promise<Category[]> {
-    return this.repo.find();
+  async findAll(): Promise<Category[]> {
+    const categories = await this.repo.find();
+    if (!categories || categories.length === 0) {
+      throw new NotFoundException('No categories found');
+    }
+    return categories;
   }
 
-  // Lấy 1 category theo id
   async findOne(id: number): Promise<Category> {
     const category = await this.repo.findOneBy({ id });
-    if (!category) throw new NotFoundException('Category not found');
+    if (!category) throw new NotFoundException(`Category with id ${id} not found`);
     return category;
   }
 
-  // Cập nhật category
-  async update(id: number, data: Partial<Category>): Promise<Category> {
+  async update(id: number, data: UpdateCategoryDto) {
     const category = await this.repo.findOneBy({ id });
-    if (!category) throw new NotFoundException('Category not found');
+    if (!category) throw new NotFoundException(`Category with id ${id} not found`);
 
-    Object.assign(category, data);  // gán dữ liệu mới
-    return this.repo.save(category); // lưu và trả về entity cập nhật
+    Object.assign(category, data); 
+    const newCate = await this.repo.save(category);
+    return {
+      message: 'Category updated successfully',
+      category: newCate,
+    } 
   }
 
-  // Xóa category
-  async remove(id: number): Promise<Category> {
+  async remove(id: number) {
     const category = await this.repo.findOneBy({ id });
-    if (!category) throw new NotFoundException('Category not found');
+    if (!category) throw new NotFoundException(`Category with id ${id} not found`);
 
-    await this.repo.remove(category); // xóa
-    return category; // trả về entity vừa xóa để biết thông tin
+    await this.repo.remove(category);
+    return {
+      message: 'Category deleted successfully',
+    };
   }
 }
