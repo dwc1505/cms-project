@@ -18,7 +18,7 @@ export class Post {
   description: string; 
 
 
-  @ManyToOne(() => Category, category => category.posts, { eager: true })
+  @ManyToOne(() => Category, category => category.posts, {nullable : false })
   category: Category;
 
 }

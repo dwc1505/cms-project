@@ -1,13 +1,14 @@
 import { Controller, Get, Post as PostRoute, Put, Delete, Param, Body } from '@nestjs/common';
 import { PostService } from './posts.service';
 import { Post } from './posts.entity';
+import { CreatePostDto, UpdatePostDto } from 'src/common/dtos';
 
 @Controller('posts')
 export class PostController {
   constructor(private readonly service: PostService) {}
 
   @PostRoute()
-  create(@Body() body: { title: string; content: string; userId: number; categoryId: number }) {
+  create(@Body() body: CreatePostDto) {
     return this.service.create(body);
   }
 
@@ -22,7 +23,7 @@ export class PostController {
   }
 
   @Put(':id')
-  update(@Param('id') id: number, @Body() body: Partial<Post>) {
+  update(@Param('id') id: number, @Body() body: UpdatePostDto) {
     return this.service.update(id, body);
   }
 
