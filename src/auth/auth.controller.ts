@@ -1,5 +1,6 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -19,5 +20,10 @@ export class AuthController {
     @Body('password') password: string,
   ) {
     return this.authService.login(email, password);
+  }
+  @UseGuards(JwtAuthGuard)
+  @Post('logout')
+  async logout(@Req() req: any) {
+    return { message: 'Logout successful.' };
   }
 }
